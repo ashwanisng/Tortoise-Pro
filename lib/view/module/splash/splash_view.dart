@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc_starter/utils/theme/app_colors.dart'
-    show AppColors;
-import 'package:flutter_bloc_starter/view/module/home/home_view.dart'
-    show HomeView;
+import 'package:flutter_bloc_starter/utils/theme/app_colors.dart';
+import 'package:flutter_bloc_starter/view/module/home/device_page.dart';
+
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -22,7 +21,7 @@ class _SplashViewState extends State<SplashView> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const HomeView(),
+          builder: (context) => const DevicesPage(),
         ), // Replace with your main screen
       );
     });

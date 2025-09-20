@@ -14,16 +14,11 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-
-      ],
-      child: MaterialApp(
-        title: Env.title,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
-        home: const SplashView(),
-      ),
+    return MaterialApp(
+      title: Env.title,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.theme,
+      home: const SplashView(),
     );
   }
 }
