@@ -517,25 +517,28 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'DEVICE PRICE',
-                          style: Styles.tsSemiBold12.copyWith(
-                            color: AppColors.black2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'DEVICE PRICE',
+                            style: Styles.tsSemiBold12.copyWith(
+                              color: AppColors.black2,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text('\u20B9 1,38,963', style: Styles.tsSemiBold18),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Monthly deduction \u20B918,900',
-                          style: Styles.tsSemiBold12.copyWith(
-                            color: AppColors.greyLight,
+                          const SizedBox(height: 8),
+                          Text('\u20B9 1,38,963', style: Styles.tsSemiBold18),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Monthly deduction \u20B918,900',
+                            style: Styles.tsSemiBold12.copyWith(
+                              color: AppColors.greyLight,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
 
