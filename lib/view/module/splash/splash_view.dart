@@ -22,16 +22,23 @@ class _SplashViewState extends State<SplashView> {
         context,
         MaterialPageRoute(
           builder: (context) => const DevicesPage(),
-        ), // Replace with your main screen
-      );
+        ));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryColor,
-      body: Center(child: Text('Splash Screen')),
+      backgroundColor: AppColors.darkGreen1,
+      body: Center(
+          child: Text("Tortoise Pro",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          )
+      ),
     );
   }
 }

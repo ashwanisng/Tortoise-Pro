@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc_starter/utils/theme/app_colors.dart';
 import 'package:flutter_bloc_starter/utils/theme/styles.dart';
 import 'package:flutter_bloc_starter/view/module/device_detail/device_detail_view.dart';
+import 'package:flutter_bloc_starter/view/module/home/widget/search_bar_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class DevicesPage extends StatefulWidget {
@@ -46,97 +47,11 @@ class _DevicesPageState extends State<DevicesPage> {
     final double horizontalPadding = 24;
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        leading: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.chevron_left, color: Colors.grey),
-        ),
-        title: Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Colors.black87.withOpacity(0.06),
-                width: 1.4,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.search, color: Colors.black54),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: 'Search',
-                      border: InputBorder.none,
-                      isCollapsed: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-                // small chip with X
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        _controller.text,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _controller.clear();
-                          });
-                        },
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      appBar: SearchHeader(
+        controller: _controller,
+        onBack: () => Navigator.pop(context),
+        onClear: () => setState(() {}),
+        onSubmitted: (q) {},
       ),
       body: SafeArea(
         child: Padding(
@@ -148,7 +63,6 @@ class _DevicesPageState extends State<DevicesPage> {
               Text('Search from popular brands', style: Styles.tsSemiBold16),
               const SizedBox(height: 20),
 
-              // brands row
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -277,10 +191,9 @@ class DeviceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap with GestureDetector (translucent) to make sure taps are captured
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: onTap, // this will be called even if InkWell fails
+      onTap: onTap,
       child: Card(
         elevation: 0.0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -288,7 +201,7 @@ class DeviceCard extends StatelessWidget {
         child: Material(
           color: Colors.white,
           child: InkWell(
-            onTap: onTap, // ripple + navigation
+            onTap: onTap,
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),

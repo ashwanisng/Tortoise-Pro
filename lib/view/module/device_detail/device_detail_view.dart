@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc_starter/utils/helper/selector_cubit.dart';
 import 'package:flutter_bloc_starter/utils/theme/app_colors.dart';
 import 'package:flutter_bloc_starter/utils/theme/styles.dart';
+import 'package:flutter_bloc_starter/view/module/device_detail/widget/effective_price_dialog.dart';
+import 'package:flutter_bloc_starter/view/module/device_detail/widget/slider_widget.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,17 +17,6 @@ class DeviceDetailView extends StatefulWidget {
 
 class _DeviceDetailViewState extends State<DeviceDetailView> {
   final PageController _pageController = PageController();
-  int _page = 0;
-  int _selectedColorIndex = 0;
-  String _selectedStorage = '128 GB';
-  bool _promoExpanded = false;
-
-  final List<Color> _colors = [
-    AppColors.orange,
-    AppColors.silver,
-    AppColors.darkBlue,
-  ];
-  final List<String> _storages = ['128 GB', '256 GB', '512 GB', '1 TB'];
 
   @override
   Widget build(BuildContext context) {
@@ -122,56 +115,72 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
   }
 
   Widget _imageCarousel(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: Colors.pink,
-          height: MediaQuery.of(context).size.height * 0.42,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: 3,
-            onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 0.0,
-                  vertical: 0,
-                ),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(color: Colors.white),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16),
-                      Center(
-                        child: Image.asset(
-                          'assets/images/iphone_back.png',
-                          fit: BoxFit.contain,
-                          height: 260,
+    return BlocListener<SelectorCubit<int>, int>(
+      listener: (context, selectedIndex) {
+        if (_pageController.hasClients && _pageController.page?.round() != selectedIndex) {
+          _pageController.animateToPage(
+            selectedIndex,
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOut,
+          );
+        }
+      },
+      child: BlocBuilder<SelectorCubit<int>, int>(
+        builder: (context, selectedIndex) {
+          return Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  height: MediaQuery.of(context).size.height * 0.32,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: 3,
+                    onPageChanged: (i) => context.read<SelectorCubit<int>>().select(i),
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0),
+                        child: DecoratedBox(
+                          decoration: const BoxDecoration(color: Colors.white),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              Center(
+                                child: Image.asset(
+                                  'assets/images/iphone_back.png',
+                                  fit: BoxFit.contain,
+                                  height: 260,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
-                      ),
-
-                      const SizedBox(height: 8),
-                      Center(
-                        child: ExactCarouselIndicator(
-                          count: 3,
-                          currentIndex: _page,
-                          width: 88,
-                          height: 22,
-                          dotSize: 8,
-                          dotSpacing: 10,
-                          backgroundColor: const Color(0xFFDDDDDD),
-                          inactiveDotColor: const Color(0xFFF1F1F1),
-                          activeDotColor: const Color(0xFFE6E6E6),
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
-              );
-            },
-          ),
-        ),
-      ],
+                Center(
+                  child: SliderWidget(
+                    count: 3,
+                    currentIndex: selectedIndex,
+                    width: 88,
+                    height: 22,
+                    dotSize: 8,
+                    dotSpacing: 10,
+                    backgroundColor: const Color(0xFFDDDDDD),
+                    inactiveDotColor: const Color(0xFFF1F1F1),
+                    activeDotColor: const Color(0xFFE6E6E6),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -184,7 +193,7 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SvgPicture.asset("assets/images/shield.svg", height: 29, width: 26),
-          const SizedBox(width: 18),
+          const SizedBox(width: 14),
           Expanded(
             child: Text(
               'Protected with Tortoise Corporate Care',
@@ -197,17 +206,24 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
   }
 
   Widget _colorPicker() {
-    return Row(
-      children: List.generate(
-        _colors.length,
-        (i) => GestureDetector(
-          onTap: () => setState(() => _selectedColorIndex = i),
-          child: Container(
-            margin: EdgeInsets.only(right: i == _colors.length - 1 ? 0 : 12),
-            child: _buildColorDot(_colors[i], i == _selectedColorIndex),
-          ),
-        ),
-      ),
+    final colors = [AppColors.orange, AppColors.silver, AppColors.darkBlue];
+
+    return BlocBuilder<SelectorCubit<Color>, Color>(
+      builder: (context, selectedColor) {
+        return Row(
+          children: List.generate(colors.length, (i) {
+            final color = colors[i];
+            final selected = color == selectedColor;
+            return GestureDetector(
+              onTap: () => context.read<SelectorCubit<Color>>().select(color),
+              child: Container(
+                margin: EdgeInsets.only(right: i == colors.length - 1 ? 0 : 12),
+                child: _buildColorDot(color, selected),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 
@@ -229,37 +245,25 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
   }
 
   Widget _storageOptions() {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children:
-          _storages.map((s) {
-            final bool selected = _selectedStorage == s;
+    final storages = ['128 GB', '256 GB', '512 GB', '1 TB'];
+
+    return BlocBuilder<SelectorCubit<String>, String>(
+      builder: (context, selected) {
+        return Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: storages.map((s) {
+            final bool isSelected = s == selected;
             return GestureDetector(
-              onTap: () => setState(() => _selectedStorage = s),
+              onTap: () => context.read<SelectorCubit<String>>().select(s),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: selected ? Colors.white : Colors.white,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: selected ? AppColors.green08 : AppColors.grey,
-                    width: selected ? 2 : 1,
-                  ),
-                  boxShadow:
-                      selected
-                          ? [
-                            BoxShadow(
-                              color: AppColors.green08.withOpacity(0.06),
-                              blurRadius: 6,
-                              offset: const Offset(0, 4),
-                            ),
-                          ]
-                          : null,
+                  border: Border.all(color: isSelected ? AppColors.green08 : AppColors.grey, width: isSelected ? 2 : 1),
+                  boxShadow: isSelected ? [BoxShadow(color: AppColors.green08.withOpacity(0.06), blurRadius: 6, offset: Offset(0,4))] : null,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -269,10 +273,7 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
                       height: 18,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: selected ? AppColors.green08 : AppColors.grey,
-                          width: selected ? 6 : 1.4,
-                        ),
+                        border: Border.all(color: isSelected ? AppColors.green08 : AppColors.grey, width: isSelected ? 6 : 1.4),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -282,6 +283,8 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
               ),
             );
           }).toList(),
+        );
+      },
     );
   }
 
@@ -373,7 +376,7 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
     return Column(
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(12),
             topRight: Radius.circular(12),
           ),
@@ -385,7 +388,7 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
         ),
         InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () => setState(() => _promoExpanded = false),
+          onTap: () => context.read<SelectorCubit<bool>>().select(false),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.grey),
@@ -422,7 +425,7 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
       children: [
         ClipRRect(
           clipBehavior: Clip.hardEdge,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(12),
             topRight: Radius.circular(12),
           ),
@@ -444,7 +447,7 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
           ),
         ),
         InkWell(
-          onTap: () => setState(() => _promoExpanded = true),
+          onTap: () => context.read<SelectorCubit<bool>>().select(true),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.grey),
@@ -477,21 +480,23 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
   }
 
   Widget _promoCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: AnimatedCrossFade(
-        firstChild: _promoCollapsed(),
-        secondChild: _promoExpandedView(),
-        crossFadeState:
-            _promoExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-        duration: const Duration(milliseconds: 320),
-        firstCurve: Curves.easeOut,
-        secondCurve: Curves.easeIn,
-      ),
+    return BlocBuilder<SelectorCubit<bool>, bool>(
+      builder: (context, expanded) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: AnimatedCrossFade(
+            firstChild: _promoCollapsed(),
+            secondChild: _promoExpandedView(),
+            crossFadeState: expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 320),
+            firstCurve: Curves.easeOut,
+            secondCurve: Curves.easeIn,
+          ),
+        );
+      },
     );
   }
+
 
   Widget _bottomBar() {
     return SafeArea(
@@ -503,7 +508,6 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
@@ -560,29 +564,38 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Text(
-                                'Impact in net-salary',
-                                style: Styles.tsSemiBold12.copyWith(
-                                  color: AppColors.darkGreen1,
+                          InkWell(
+                            onTap: () {
+                              showEffectivePriceDialog(
+                                context,
+                                effectivePrice: '\u20B9 92,483',
+                                impactMonthly: '\u20B9 12,567',
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Impact in net-salary',
+                                  style: Styles.tsSemiBold12.copyWith(
+                                    color: AppColors.darkGreen1,
+                                  ),
                                 ),
-                              ),
-                              const Spacer(),
-                              Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: AppColors.darkGreen1,
-                                  shape: BoxShape.circle,
+                                const Spacer(),
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.darkGreen1,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.white,
+                                    size: 11,
+                                  ),
                                 ),
-                                child: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.white,
-                                  size: 11,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -620,64 +633,25 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
   }
 }
 
-class ExactCarouselIndicator extends StatelessWidget {
-  final int count;
-  final int currentIndex;
-  final double width;
-  final double height;
-  final double dotSize;
-  final double dotSpacing;
-  final Color backgroundColor;
-  final Color inactiveDotColor;
-  final Color activeDotColor;
-  final Duration animationDuration;
 
-  const ExactCarouselIndicator({
-    Key? key,
-    this.count = 3,
-    required this.currentIndex,
-    this.width = 74,
-    this.height = 20,
-    this.dotSize = 8,
-    this.dotSpacing = 10,
-    this.backgroundColor = const Color(0xFFDDDDDD),
-    this.inactiveDotColor = const Color(0xFFF1F1F1),
-    this.activeDotColor = const Color(0xFFE6E6E6),
-    this.animationDuration = const Duration(milliseconds: 220),
-  }) : assert(count > 0),
-       assert(currentIndex >= 0 && currentIndex < count),
-       super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(height / 2),
-      ),
-      child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(count, (i) {
-            final bool isActive = i == currentIndex;
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: dotSpacing / 2),
-              child: AnimatedContainer(
-                duration: animationDuration,
-                width: dotSize,
-                height: dotSize,
-                decoration: BoxDecoration(
-                  color: isActive ? activeDotColor : inactiveDotColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            );
-          }),
+Future<T?> showEffectivePriceDialog<T>(BuildContext context, {
+  required String effectivePrice,
+  required String impactMonthly,
+}) {
+  return showDialog<T>(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) =>
+        Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+              horizontal: 24, vertical: 24),
+          backgroundColor: Colors.transparent,
+          child: EffectivePriceDialog(
+            effectivePrice: effectivePrice,
+            impactMonthly: impactMonthly,
+          ),
         ),
-      ),
-    );
-  }
+  );
 }
+
