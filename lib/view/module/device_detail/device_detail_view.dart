@@ -133,32 +133,34 @@ class _DeviceDetailViewState extends State<DeviceDetailView> {
               children: [
                 Container(
                   color: Colors.white,
-                  height: MediaQuery.of(context).size.height * 0.32,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: 3,
-                    onPageChanged: (i) => context.read<SelectorCubit<int>>().select(i),
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0),
-                        child: DecoratedBox(
-                          decoration: const BoxDecoration(color: Colors.white),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 16),
-                              Center(
-                                child: Image.asset(
-                                  'assets/images/iphone_back.png',
-                                  fit: BoxFit.contain,
-                                  height: 260,
+                  child: AspectRatio(
+                    aspectRatio: 3 / 2,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: 3,
+                      onPageChanged: (i) => context.read<SelectorCubit<int>>().select(i),
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0),
+                          child: DecoratedBox(
+                            decoration: const BoxDecoration(color: Colors.white),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 16),
+                                Center(
+                                  child: Image.asset(
+                                    'assets/images/iphone_back.png',
+                                    fit: BoxFit.contain,
+                                    height: 260,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                            ],
+                                const SizedBox(height: 8),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Center(

@@ -49,7 +49,7 @@ class _DevicesPageState extends State<DevicesPage> {
       backgroundColor: Colors.grey[50],
       appBar: SearchHeader(
         controller: _controller,
-        onBack: () => Navigator.pop(context),
+        onBack: () {},
         onClear: () => setState(() {}),
         onSubmitted: (q) {},
       ),
